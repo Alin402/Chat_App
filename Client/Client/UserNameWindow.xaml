@@ -1,0 +1,22 @@
+﻿<mah:MetroWindow x:Class="Client.UserNameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Client"
+        mc:Ignorable="d"
+        Title="Choose an alias" Height="450" Width="800"
+        Loaded="Window_Loaded"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        >
+    <Grid>
+        <Grid>
+            <Grid>
+                <TextBlock HorizontalAlignment="Center" Margin="0,135,0,0" TextWrapping="Wrap" Text="Please Choose an Alias" VerticalAlignment="Top" FontFamily="Arial Rounded MT Bold" FontSize="30" RenderTransformOrigin="0.489,-0.09"/>
+                <TextBox Name="alias_textbox" TextWrapping="Wrap" Text="" Width="200" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" FontFamily="Arial Rounded MT Bold" BorderBrush="#000D44EA" Background="#FFEFE6E6" KeyDown="alias_textbox_KeyDown" />
+                <TextBlock HorizontalAlignment="Center" Margin="0,259,0,0" TextWrapping="Wrap" Text="If you don't choose and alias you will enter the CHAT as anonymous" VerticalAlignment="Top"/>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</mah:MetroWindow>
