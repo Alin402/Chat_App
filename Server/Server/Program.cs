@@ -1,2 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Server;
+using Server.Models;
+
+App app = new App("127.0.0.1", 8080);
+await app.RunAsync();
