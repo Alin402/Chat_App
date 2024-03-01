@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client.ClientApp
+namespace Client.models
 {
-    public class ClientApp
+    public class User
     {
-
+        public string Id { get; set; }
+        public string Name { get; set; }
     }
 }

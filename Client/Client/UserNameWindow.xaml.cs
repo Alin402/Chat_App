@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Client.models;
 using Client.utils;
 using MahApps.Metro.Controls;
 
@@ -35,7 +36,19 @@ namespace Client
         {
             if (e.Key == Key.Enter)
             {
-                WindowUtils.OpenNewWindowAndCloseCurrentOne(new MainWindow(), this);
+                string alias = alias_textbox.Text;
+                if (alias == "")
+                {
+                    MessageBox.Show("Alias cannot be empty");
+                    return;
+                }
+
+                User newUser = new User()
+                {
+                    Id = IDCreator.CreateUniqueID(),
+                    Name = alias,
+                };
+                WindowUtils.OpenNewWindowAndCloseCurrentOne(new MainWindow(newUser), this);
             }
         }
     }

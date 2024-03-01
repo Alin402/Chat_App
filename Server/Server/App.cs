@@ -105,7 +105,7 @@ namespace Server
                 Message disconnectMessage = new Message()
                 {
                     From = new User() {  Name = "admin" },
-                    Type = "con",
+                    Type = "conn",
                     Content = $"{user?.Name} has left the chat"
                 };
                 await Task.Run(async () => await BroadcastMessage(disconnectMessage, handler));
