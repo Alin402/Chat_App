@@ -6,12 +6,15 @@
         xmlns:local="clr-namespace:Client"
         mc:Ignorable="d"
         Title="Chat" Height="450" Width="800"
-        WindowState="Maximized"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        Loaded="MetroWindow_Loaded"
         >
     <Grid>
         <DockPanel LastChildFill="False">
             <Grid Background="AliceBlue" Width="300" DockPanel.Dock="Left"/>
+            <Grid Name="chat_panel" Background="Beige" Width="505" DockPanel.Dock="Right">
+                <TextBox HorizontalAlignment="Center" Margin="0,385,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="505" Height="49" Name="send_message_textbox"/>
+            </Grid>
         </DockPanel>
 
     </Grid>

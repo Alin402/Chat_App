@@ -24,5 +24,20 @@ namespace Client
         {
             InitializeComponent();
         }
+
+        private void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            send_message_textbox.Focus();
+
+            TextBlock message = new TextBlock();
+            message.Text = "Hello World";
+
+            chat_panel.Children.Add(message);
+
+            TextBlock message2 = new TextBlock();
+            message2.Text = "New Hello World";
+            chat_panel.Children.Add(message2);
+            message2.Margin = new Thickness(0, 20, 0, 0);
+        }
     }
 }
