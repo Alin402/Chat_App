@@ -10,12 +10,18 @@
     <Compile Update="MainWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="UserControls\ChatMessage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="UserNameWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="UserControls\ChatMessage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="UserNameWindow.xaml">

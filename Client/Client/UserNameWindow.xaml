@@ -8,13 +8,14 @@
         Title="Choose an alias" Height="450" Width="800"
         Loaded="Window_Loaded"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        >
+        WindowStartupLocation="CenterScreen"
+    >
     <Grid>
         <Grid>
             <Grid>
                 <TextBlock HorizontalAlignment="Center" Margin="0,135,0,0" TextWrapping="Wrap" Text="Please Choose an Alias" VerticalAlignment="Top" FontFamily="Arial Rounded MT Bold" FontSize="30" RenderTransformOrigin="0.489,-0.09"/>
-                <TextBox Name="alias_textbox" TextWrapping="Wrap" Text="" Width="200" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" FontFamily="Arial Rounded MT Bold" BorderBrush="#000D44EA" Background="#FFEFE6E6" KeyDown="alias_textbox_KeyDown" />
-                <TextBlock HorizontalAlignment="Center" Margin="0,259,0,0" TextWrapping="Wrap" Text="If you don't choose and alias you will enter the CHAT as anonymous" VerticalAlignment="Top"/>
+                <TextBox Name="alias_textbox" TextWrapping="Wrap" Text="" Width="200" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" FontFamily="Arial Rounded MT Bold" BorderBrush="#FF8A7F7F" KeyDown="alias_textbox_KeyDown" Background="#FFE8DDDD" />
+                <TextBlock HorizontalAlignment="Center" Margin="0,259,0,0" TextWrapping="Wrap" Text="If you don't choose an alias you will enter the CHAT as anonymous" VerticalAlignment="Top"/>
             </Grid>
         </Grid>
 

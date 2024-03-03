@@ -15,6 +15,7 @@ using Client.models;
 using MahApps.Metro.Controls;
 using Client.ClientApp;
 using System.Net.Sockets;
+using Client.UserControls;
 
 namespace Client
 {
@@ -43,6 +44,8 @@ namespace Client
 
         private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            user_name_text.Text = ConnectedUser.Name;
+            send_message_textbox.Focus();
             try
             {
                 AppServer client = new AppServer(IP_ADDRESS, PORT, ConnectedUser.Name);
@@ -71,21 +74,26 @@ namespace Client
         {
             Dispatcher.Invoke(() =>
             {
-                AddMessageToChatPanel(message);
+                AddMessageToChatPanel(message, false);
             });
         }
 
-        private void AddMessageToChatPanel(Message message)
+        private void AddMessageToChatPanel(Message message, bool isMessageFromYou)
         {
-            TextBlock newMessage = new TextBlock();
-            newMessage.Text = $"{message.From.Name}: {message.Content}";
-
             RowDefinition newRow = new RowDefinition();
-            newRow.Height = new GridLength(20);
+            newRow.Height = GridLength.Auto;
             chat_panel.RowDefinitions.Add(newRow);
 
-            Grid.SetRow(newMessage, chat_panel.RowDefinitions.Count - 1);
-            chat_panel.Children.Add(newMessage);
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.CustomContent = message.Content;
+            chatMessage.CustomUserName = message.From.Name;
+            chatMessage.IsMessageFromYou = isMessageFromYou;
+            Grid.SetRow(chatMessage, chat_panel.RowDefinitions.Count - 1);
+            chat_panel.Children.Add(chatMessage);
+
+            chat_panel_scroll_viewer.ScrollToVerticalOffset(
+                chat_panel_scroll_viewer.ScrollableHeight + 
+                chat_panel.RowDefinitions[chat_panel.RowDefinitions.Count - 1].MaxHeight);
         }
 
         private async void send_message_textbox_KeyDown(object sender, KeyEventArgs e)
@@ -104,6 +112,8 @@ namespace Client
                     await Client.SendMessage(ClientSocket, newMessage);
                     send_message_textbox.Text = "";
                 }
+
+                AddMessageToChatPanel(newMessage, true);
             }
         }
     }
