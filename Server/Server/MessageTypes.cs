@@ -10,5 +10,6 @@ namespace Server
     {
         public static string CONN = "conn";
         public static string GENERAL = "general";
+        public static string RECEIVE_USERS = "receive_users";
     }
 }
