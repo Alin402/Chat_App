@@ -7,13 +7,16 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Server.App.MessageActions;
+using Server.App.MessageActions.ConcreteMessageActions;
+using Server.App.Rooms;
 using Server.Models;
 
-namespace Server
+namespace Server.App
 {
     public class App
     {
-        public IPAddress Address {  get; set; }
+        public IPAddress Address { get; set; }
         public int Port { get; set; }
         public IPEndPoint EndPoint { get; set; }
 
@@ -39,7 +42,8 @@ namespace Server
 
         private const int CHECK_FOR_NEW_CONNECTIONS_RATE = 200;
 
-        public AppMessages Messages {  get; private set; }
+        public AppMessages Messages { get; private set; }
+        public AppRooms Rooms {  get; private set; }
 
         public App(string ipAddressString, int port)
         {
@@ -74,14 +78,14 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex);
             }
         }
 
         private void App_OnNewUserConnected(object? sender, OnNewUserConnectedEventArgs args)
         {
             Console.WriteLine($"{args.UserProperty.Name} has joined the chat");
-            if (ConnectedSockets[args.Handler] == null )
+            if (ConnectedSockets[args.Handler] == null)
             {
                 ConnectedSockets.TryAdd(args.Handler, args.UserProperty);
             }
@@ -91,7 +95,7 @@ namespace Server
 
         private void App_OnConnectedSocketsChange(object? sender, EventArgs args)
         {
-            _ = Task.Run(async () => await Messages.BroadcastConnectedUsers());
+            _ = Task.Run(async () => await BroadcastConnectedUsers());
         }
 
         public async Task RunAsync()
@@ -114,6 +118,7 @@ namespace Server
             await Task.WhenAll(listenTask, checkIfConnectedSocketsChange);
 
             OnConnectedSocketsChange -= App_OnConnectedSocketsChange;
+            OnNewUserConnected -= App_OnNewUserConnected;
         }
 
         private async Task ListenAsync(Socket listener)
@@ -133,7 +138,41 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex);
+            }
+        }
+
+        private async Task BroadcastConnectedUsers()
+        {
+            if (ConnectedSockets.Count > 0 && ConnectedSockets.First().Value != null)
+            {
+                try
+                {
+                    List<User> users = ConnectedSockets.Values.ToList();
+
+                    Message message = new Message()
+                    {
+                        Type = "receive_users",
+                        From = new User() { Name = "admin" },
+                        Content = users
+                    };
+                    string messageString = JsonSerializer.Serialize(message);
+                    foreach (var client in ConnectedSockets)
+                    {
+                        try
+                        {
+                            await Messages.SendMessage(client.Key, messageString);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error broadcasting message: {ex.Message}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
     }

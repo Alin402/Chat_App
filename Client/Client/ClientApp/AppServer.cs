@@ -20,6 +20,7 @@ namespace Client.ClientApp
         public Socket ClientSocket {  get; set; }
 
         public event EventHandler<Message> OnReceiveMessage;
+        public event EventHandler<List<User>> OnReceiveConnectedUsers;
 
         private const int MAX_MESSAGE_SIZE = 4096;
 
@@ -69,12 +70,30 @@ namespace Client.ClientApp
                     string response = Encoding.UTF8.GetString(buffer, 0, received);
                     var message = JsonSerializer.Deserialize<Message>(response);
 
-                    OnReceiveMessage?.Invoke(this, message);
+                    if (message?.Type == "general" || message?.Type == "conn")
+                    {
+                        OnReceiveMessage?.Invoke(this, message);
+                    } 
+                    else if (message?.Type == "receive_users")
+                    {
+                        if (message != null)
+                        {
+                            JsonElement usersElement = (JsonElement)message.Content;
+                            string usersString = usersElement.GetRawText();
+                            List<User>? users = JsonSerializer.Deserialize<List<User>>(usersString);
+
+                            if (users?.Count > 0)
+                            {
+                                OnReceiveConnectedUsers?.Invoke(this, users);
+                            }
+                        }
+                    }
+
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.ToString());
                 Console.WriteLine($"Error receiving message: {ex.Message}");
             }
         }
