@@ -8,8 +8,10 @@ namespace Server.Models
 {
     public class Message
     {
-        public User From { get; set; }
-        public Object Content { get; set; }
-        public string Type { get; set; }
+        public User? From { get; set; }
+        public Object? Content { get; set; }
+        public string? Type { get; set; }
+        public User? To { get; set; }
+        public string? RoomID { get; set; }
     }
 }

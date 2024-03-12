@@ -5,20 +5,32 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Server.App.MessageActions.ConcreteMessageActions;
+using Server.App.MessageActions;
 using Server.Models;
-using static Server.App;
+using static Server.App.App;
+using Server.App.Rooms;
 
-namespace Server
+namespace Server.App
 {
     public class AppMessages
     {
-        public App AppServer {  get; set; }
+        public App AppServer { get; set; }
+        public AppRooms Rooms { get; set; }
 
         private const int MAX_MESSAGE_LENGTH = 4096;
 
         public AppMessages(App appServer)
         {
             AppServer = appServer;
+            Rooms = new AppRooms(this, new List<Room>());
+
+            MessageTypesActions.MessageTypesActionsValuePair.Add(MessageTypes.CONN, new MessageActionConnection(appServer, this));
+            MessageTypesActions.MessageTypesActionsValuePair.Add(MessageTypes.GENERAL, new MessageActionGeneral(this));
+            MessageTypesActions.MessageTypesActionsValuePair.Add(MessageTypes.ROOM, new MessageActionRoom(this));
+            MessageTypesActions.MessageTypesActionsValuePair.Add(MessageTypes.ROOM_INVITATION, new MessageActionRoomInvitation(appServer, this));
+            MessageTypesActions.MessageTypesActionsValuePair.Add(MessageTypes.ROOM_INVITATION_ACCEPT, new MessageActionRoomInvitationAccept(Rooms, this, appServer));
+            MessageTypesActions.MessageTypesActionsValuePair.Add(MessageTypes.ROOM_INVITATION_DENY, new MessageActionRoomInvitationDeny(this, appServer));
         }
 
         public async Task ReceiveMessages(Socket handler)
@@ -39,20 +51,10 @@ namespace Server
                     string response = Encoding.UTF8.GetString(buffer, 0, received);
                     var message = JsonSerializer.Deserialize<Message>(response);
 
-                    if (message?.Type == MessageTypes.CONN)
+                    if (message?.Type != null)
                     {
-                        OnNewUserConnectedEventArgs args = new(message.From, handler);
-                        AppServer.RaiseNewConnectedUserEvent(this, args);
-
-                        message.Content = $"{message.From.Name} has joined the chat";
-                        message.From = new User { Name = "admin" };
-
-                        _ = Task.Run(async () => await BroadcastMessage(message, handler));
-                    }
-                    else if (message?.Type == MessageTypes.GENERAL)
-                    {
-                        // Broadcast message to all connected sockets
-                        _ = Task.Run(async () => await BroadcastMessage(message, handler));
+                        IMessageAction action = MessageTypesActions.MessageTypesActionsValuePair[message.Type];
+                        action.Execute(message, handler);
                     }
                 }
             }
@@ -95,41 +97,30 @@ namespace Server
             }
         }
 
-        public async Task BroadcastConnectedUsers()
+        public async Task SendMessageToRoom(Message message)
         {
-            if (AppServer.ConnectedSockets.Count > 0)
+            try
             {
-                try
+                Room? room = Rooms.Rooms.Find((r) => r.ID == message.RoomID);
+                if (room != null)
                 {
-                    List<User> users = AppServer.ConnectedSockets.Values.ToList();
-
-                    Message message = new Message()
+                    string msg = JsonSerializer.Serialize(message);
+                    if (message.From?.Id == room.User1?.Id)
                     {
-                        Type = "receive_users",
-                        From = new User() { Name = "admin" },
-                        Content = users
-                    };
-                    string messageString = JsonSerializer.Serialize(message);
-                    foreach (var client in AppServer.ConnectedSockets)
+                        await SendMessage(room.Client2, msg);
+                    } else
                     {
-                        try
-                        {
-                            await SendMessage(client.Key, messageString);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error broadcasting message: {ex.Message}");
-                        }
+                        await SendMessage(room.Client1, msg);
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
             }
         }
 
-        async Task SendMessage(Socket client, string message)
+        public async Task SendMessage(Socket client, string message)
         {
             try
             {

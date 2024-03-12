@@ -62,12 +62,47 @@ namespace Client
                 });
 
                 client.OnReceiveMessage += ReceiveMessageHandler;
+                client.OnReceiveConnectedUsers += Client_OnReceiveConnectedUsers;
 
                 _ = Task.Run(async () => await client.ListenAsync(clientSocket));
             } catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
+        }
+
+        private void Client_OnReceiveConnectedUsers(object? sender, List<User> e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                AddUsersToComboBox(e);
+            });
+        }
+
+        private void AddUsersToComboBox(List<User> users)
+        {
+            // placeholder item
+            ComboBoxItem placeholderItem = new ComboBoxItem();
+            placeholderItem.Content = "Connected Users";
+            placeholderItem.IsEnabled = false;
+
+            List<ComboBoxItem> newComboBoxItems = new List<ComboBoxItem>() { placeholderItem };
+
+            foreach (User user in users)
+            {
+                ComboBoxItem newItem = new ComboBoxItem();
+                newItem.Content = user.Name;
+                newComboBoxItems.Add(newItem);
+            }
+
+            connected_users_combobox.Items.Clear();
+
+            foreach (ComboBoxItem item in newComboBoxItems)
+            {
+                connected_users_combobox.Items.Add(item);
+            }
+
+            connected_users_combobox.SelectedIndex = 0;
         }
 
         private void ReceiveMessageHandler(object sender, Message message)
@@ -85,7 +120,7 @@ namespace Client
             chat_panel.RowDefinitions.Add(newRow);
 
             ChatMessage chatMessage = new ChatMessage();
-            chatMessage.CustomContent = message.Content;
+            chatMessage.CustomContent = message.Content.ToString();
             chatMessage.CustomUserName = message.From.Name;
             chatMessage.IsMessageFromYou = isMessageFromYou;
             Grid.SetRow(chatMessage, chat_panel.RowDefinitions.Count - 1);
